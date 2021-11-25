@@ -1,0 +1,7 @@
+.idea/
+build/
+
+*.exe
+*.out
+*.html
+*.yaml
