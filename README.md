@@ -1,2 +1,2 @@
 # Maestro
-A useful app to cover your service discovery needs.
+A slim app to cover your service discovery needs.
