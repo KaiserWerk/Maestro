@@ -11,7 +11,7 @@ const (
 	AuthHeader  = "X-Registry-Token"
 	PingHeader  = "X-Ping-Token"
 
-	EnvAuthToken = "MAESTRO_AUTHTOKEN"
+	EnvAuthToken = "MAESTRO_TOKEN"
 )
 
 var (
