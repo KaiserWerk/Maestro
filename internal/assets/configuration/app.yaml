@@ -1,3 +1,0 @@
-bind_address: 'http://localhost:9200'
-certificate_file:
-key_file:

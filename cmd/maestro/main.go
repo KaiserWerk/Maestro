@@ -4,8 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/KaiserWerk/Maestro/internal/global"
-	"github.com/sirupsen/logrus"
+	"github.com/KaiserWerk/Maestro/internal/middleware"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,20 +12,26 @@ import (
 	"time"
 
 	"github.com/KaiserWerk/Maestro/internal/configuration"
+	"github.com/KaiserWerk/Maestro/internal/global"
+	"github.com/KaiserWerk/Maestro/internal/handler"
 	"github.com/KaiserWerk/Maestro/internal/logging"
 	"github.com/KaiserWerk/Maestro/internal/shutdownManager"
 
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 var (
 	bindAddr string
 	configFile = flag.String("config", "", "The configuration file to use")
 	logDir = flag.String("logDir", ".", "The directory to save log files to")
+	authToken = flag.String("token", "", "The authentication token to use")
 )
 
 func main() {
 	flag.Parse()
+
+	global.SetToken(*authToken)
 
 	//defer panicHandler.HandlePanic()
 	defer shutdownManager.Initiate()
@@ -44,6 +49,7 @@ func main() {
 	}
 	if created {
 		logger.Info("configuration file was created; exiting")
+		os.Exit(-1)
 	}
 
 	u, err := url.ParseRequestURI(conf.BindAddress)
@@ -54,23 +60,6 @@ func main() {
 	fmt.Printf("bind addr: %s, %s, %s\n", u.Scheme, u.Host, u.Port())
 
 	setupBindAddr(u, &bindAddr)
-
-
-
-
-
-
-	//c := cache.New(5 * time.Minute)
-	//
-	//// Put something into the cache
-	//c.Set("a", "b", 1 * time.Minute)
-	//
-	//// Read from the cache
-	//obj, found := c.Get("a")
-	//if found {
-	//	// Convert the type
-	//	fmt.Println(obj.(string))
-	//}
 
 	router := getRouter()
 	s := &http.Server{
@@ -102,15 +91,13 @@ func main() {
 	fmt.Printf("Starting up server with binding address %s...\n", bindAddr)
 	if u.Scheme == "http" {
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Panic("Could not start server")
+			logger.Panic("Could not start server: " + err.Error())
 		}
 	} else if u.Scheme == "https" {
 		if err := s.ListenAndServeTLS(conf.CertificateFile, conf.KeyFile); err != nil && err != http.ErrServerClosed {
-			logger.Panic("Could not start server")
+			logger.Panic("Could not start server with TLS: " + err.Error())
 		}
 	}
-
-
 }
 
 func setupBindAddr(u *url.URL, addr *string) {
@@ -119,16 +106,23 @@ func setupBindAddr(u *url.URL, addr *string) {
 	} else if u.Port() != "" {
 		*addr = ":" + u.Port()
 	} else {
-		*addr = ":" + global.GetDefaultPort()
+		*addr = ":" + global.DefaultPort
 	}
 }
 
 func getRouter() *mux.Router {
 	router := mux.NewRouter()
-	router.Handle("/register", nil).Methods("POST")
-	router.Handle("/deregister", nil).Methods("POST")
-	router.Handle("/query", nil).Methods("GET")
-	router.Handle("/queryall", nil).Methods("GET")
+
+	hd := &handler.HttpHandler{
+		Logger: logging.New(logrus.InfoLevel, "main", logging.ModeBoth),
+	}
+
+	routerV1 := router.PathPrefix("/api/v1").Subrouter()
+
+	routerV1.HandleFunc("/register", middleware.Auth(hd.RegistrationHandler)).Methods(http.MethodPost)
+	routerV1.HandleFunc("/deregister", middleware.Auth(hd.DeregistrationHandler)).Methods(http.MethodDelete)
+	routerV1.HandleFunc("/ping", middleware.Auth(hd.PingHandler)).Methods(http.MethodPut)
+	routerV1.HandleFunc("/query", middleware.Auth(hd.QueryHandler)).Methods(http.MethodGet)
 
 	return router
 }
