@@ -31,7 +31,7 @@ var (
 func main() {
 	flag.Parse()
 
-	global.SetToken(*authToken)
+	global.SetAuthToken(*authToken)
 
 	//defer panicHandler.HandlePanic()
 	defer shutdownManager.Initiate()

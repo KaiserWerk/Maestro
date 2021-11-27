@@ -21,7 +21,7 @@ func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request
 	err = cache.Register(reg.Id, reg.Address)
 	if err != nil {
 		if errors.Is(err, &cache.EntryExists{}) {
-			http.Error(w, "unable to register address; ID already exists", http.StatusBadRequest)
+			http.Error(w, "unable to register address; ID already exists", http.StatusConflict)
 		} else {
 			http.Error(w, "unable to register address: " + err.Error(), http.StatusInternalServerError)
 		}

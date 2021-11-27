@@ -13,7 +13,7 @@ func Auth(f func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWrit
 			http.Error(w, "Missing auth token", http.StatusUnauthorized)
 			return
 		}
-		if authToken != global.GetToken() {
+		if authToken != global.GetAuthToken() {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
