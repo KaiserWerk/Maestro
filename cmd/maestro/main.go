@@ -50,7 +50,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	u, err := url.ParseRequestURI(conf.BindAddress)
+	u, err := url.ParseRequestURI(conf.App.BindAddress)
 	if err != nil {
 		logger.WithField("error", err.Error()).Panic("invalid bind address")
 	}
@@ -92,7 +92,7 @@ func main() {
 			logger.Panic("Could not start server: " + err.Error())
 		}
 	} else if u.Scheme == "https" {
-		if err := s.ListenAndServeTLS(conf.CertificateFile, conf.KeyFile); err != nil && err != http.ErrServerClosed {
+		if err := s.ListenAndServeTLS(conf.App.CertificateFile, conf.App.KeyFile); err != nil && err != http.ErrServerClosed {
 			logger.Panic("Could not start server with TLS: " + err.Error())
 		}
 	}

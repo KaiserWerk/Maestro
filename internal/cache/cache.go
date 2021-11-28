@@ -34,8 +34,12 @@ func Register(id, address string) error {
 	return nil
 }
 
-func Deregister(id string) {
-	entries.Delete(id)
+func Deregister(id string) bool {
+	if _, ok := entries.Get(id); ok {
+		entries.Delete(id)
+		return true
+	}
+	return false
 }
 
 func Get(id string) (*entity.Registrant, bool) {

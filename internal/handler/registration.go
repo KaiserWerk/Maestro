@@ -39,5 +39,8 @@ func (h *HttpHandler) DeregistrationHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	cache.Deregister(reg.Id)
+	if ok := cache.Deregister(reg.Id); !ok {
+		http.Error(w, "could not remove non-existant entry", http.StatusNotFound)
+		return
+	}
 }

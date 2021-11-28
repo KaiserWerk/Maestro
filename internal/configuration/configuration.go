@@ -13,6 +13,7 @@ import (
 
 var (
 	configFile = "app.yaml"
+	appConfig *entity.AppConfig
 )
 
 func SetFile(file string) {
@@ -35,10 +36,14 @@ func Setup() (*entity.AppConfig, bool, error) {
 		created = true
 	}
 
-	conf, err := GetConfiguration()
-
+	content, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		return nil, created, err
+		panic("could not read configuration file: " + err.Error())
+	}
+
+	var conf entity.AppConfig
+	if err := yaml.Unmarshal(content, &conf); err != nil {
+		panic("could not unmarshal configuration: " + err.Error())
 	}
 
 	if created {
@@ -62,19 +67,11 @@ func Setup() (*entity.AppConfig, bool, error) {
 		}
 	}
 
-	return conf, created, err
+	appConfig = &conf
+
+	return appConfig, created, nil
 }
 
-func GetConfiguration() (*entity.AppConfig, error) {
-	content, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		return nil, err
-	}
-
-	var conf entity.AppConfig
-	if err := yaml.Unmarshal(content, &conf); err != nil {
-		return nil, err
-	}
-
-	return &conf, nil
+func GetConfiguration() *entity.AppConfig {
+	return appConfig
 }

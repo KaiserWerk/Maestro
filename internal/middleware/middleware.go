@@ -1,9 +1,8 @@
 package middleware
 
 import (
+	"github.com/KaiserWerk/Maestro/internal/configuration"
 	"net/http"
-
-	"github.com/KaiserWerk/Maestro/internal/global"
 )
 
 func Auth(f func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWriter, *http.Request) {
@@ -13,7 +12,7 @@ func Auth(f func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWrit
 			http.Error(w, "Missing auth token", http.StatusUnauthorized)
 			return
 		}
-		if authToken != global.GetAuthToken() {
+		if conf := configuration.GetConfiguration(); authToken != conf.App.AuthToken {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
