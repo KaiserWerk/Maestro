@@ -1,3 +1,8 @@
-bind_address: 'http://localhost:9200'
-certificate_file:
-key_file:
+app:
+  bind_address: 'http://localhost:9200'
+  auth_token: 123abc
+  certificate_file:
+  key_file:
+database:
+  driver: mysql
+  dsn: 'root:root@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=true'

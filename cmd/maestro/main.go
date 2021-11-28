@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/KaiserWerk/Maestro/internal/middleware"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,6 +14,8 @@ import (
 	"github.com/KaiserWerk/Maestro/internal/global"
 	"github.com/KaiserWerk/Maestro/internal/handler"
 	"github.com/KaiserWerk/Maestro/internal/logging"
+	"github.com/KaiserWerk/Maestro/internal/middleware"
+	"github.com/KaiserWerk/Maestro/internal/panicHandler"
 	"github.com/KaiserWerk/Maestro/internal/shutdownManager"
 
 	"github.com/gorilla/mux"
@@ -25,15 +26,12 @@ var (
 	bindAddr string
 	configFile = flag.String("config", "", "The configuration file to use")
 	logDir = flag.String("logDir", ".", "The directory to save log files to")
-	authToken = flag.String("token", "", "The authentication token to use")
 )
 
 func main() {
 	flag.Parse()
 
-	global.SetAuthToken(*authToken)
-
-	//defer panicHandler.HandlePanic()
+	defer panicHandler.HandlePanic()
 	defer shutdownManager.Initiate()
 	logging.Init(*logDir)
 

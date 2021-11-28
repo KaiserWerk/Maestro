@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/KaiserWerk/Maestro/internal/cache"
 	"net/http"
+
+	"github.com/KaiserWerk/Maestro/internal/cache"
 )
 
 func (h *HttpHandler) PingHandler(w http.ResponseWriter, r *http.Request) {

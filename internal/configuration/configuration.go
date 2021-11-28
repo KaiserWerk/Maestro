@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"github.com/KaiserWerk/Maestro/internal/global"
 	"io/ioutil"
 	"os"
 
@@ -30,10 +31,37 @@ func Setup() (*entity.AppConfig, bool, error) {
 		if err != nil {
 			return nil, created, err
 		}
+
 		created = true
 	}
 
 	conf, err := GetConfiguration()
+
+	if err != nil {
+		return nil, created, err
+	}
+
+	if created {
+		if e := os.Getenv(global.EnvBindAddress); e != "" {
+			conf.App.BindAddress = e
+		}
+		if e := os.Getenv(global.EnvAuthToken); e != "" {
+			conf.App.AuthToken = e
+		}
+		if e := os.Getenv(global.EnvCertFile); e != "" {
+			conf.App.CertificateFile = e
+		}
+		if e := os.Getenv(global.EnvKeyFile); e != "" {
+			conf.App.KeyFile = e
+		}
+		if e := os.Getenv(global.EnvDatabaseDriver); e != "" {
+			conf.Database.Driver = e
+		}
+		if e := os.Getenv(global.EnvDatabaseDSN); e != "" {
+			conf.Database.DSN = e
+		}
+	}
+
 	return conf, created, err
 }
 
