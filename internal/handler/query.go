@@ -17,7 +17,7 @@ func (h *HttpHandler) QueryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	e, ok := cache.Get(id)
 	if !ok {
-		http.Error(w, "entry not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	err := json.NewEncoder(w).Encode(e)
