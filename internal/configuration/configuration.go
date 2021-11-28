@@ -21,7 +21,7 @@ func SetFile(file string) {
 func Setup() (*entity.AppConfig, bool, error) {
 	var created bool
 	if _, err := os.Stat(configFile); os.IsNotExist(err)  {
-		content, err := assets.ReadConfigurationFile("app.yaml")
+		content, err := assets.ReadConfigurationFile("app.dist.yaml")
 		if err != nil {
 			return nil, created, err
 		}
@@ -44,7 +44,6 @@ func GetConfiguration() (*entity.AppConfig, error) {
 	}
 
 	var conf entity.AppConfig
-
 	if err := yaml.Unmarshal(content, &conf); err != nil {
 		return nil, err
 	}

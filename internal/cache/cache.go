@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -42,6 +43,19 @@ func Get(id string) (*entity.Registrant, bool) {
 		return e.(*entity.Registrant), true
 	}
 	return nil, false
+}
+
+func Update(id string) error {
+	e, ok := entries.Get(id)
+	if !ok {
+		return fmt.Errorf("entry with id '%s' does not exist", id)
+	}
+
+	reg := e.(*entity.Registrant)
+	reg.LastPing = time.Now()
+
+	entries.Set(id, reg, cache.DefaultExpiration)
+	return nil
 }
 
 /*

@@ -10,6 +10,7 @@ import (
 )
 
 func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	defer r.Body.Close()
 	var reg entity.Registrant
 	err := json.NewDecoder(r.Body).Decode(&reg)

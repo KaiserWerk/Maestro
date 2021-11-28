@@ -3,5 +3,5 @@ build/
 
 *.exe
 *.out
-*.html
-*.yaml
+
+app.yaml
