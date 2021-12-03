@@ -3,17 +3,16 @@ package shutdownManager
 import "sync"
 
 var (
-	mut sync.Mutex
-	funcs = make([]func() error, 0)
+	mut   sync.Mutex
+	funcs = make([]func(), 0, 5)
 )
 
 func Initiate() {
 	// TODO
 }
 
-func Register(f func() error) {
+func Register(f func()) {
 	mut.Lock()
-	defer mut.Unlock()
-
 	funcs = append(funcs, f)
+	mut.Unlock()
 }
