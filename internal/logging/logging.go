@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	err error
+	err     error
 	rotator *Rotator
 )
 
@@ -26,7 +26,7 @@ func New(lvl logrus.Level, context string, mode Mode) *logrus.Entry {
 	l := logrus.New()
 	l.SetLevel(lvl)
 	l.SetFormatter(&MaestroFormatter{
-		LevelPadding: 7,
+		LevelPadding:   7,
 		ContextPadding: 9,
 	})
 	l.SetReportCaller(false)
@@ -43,12 +43,12 @@ func New(lvl logrus.Level, context string, mode Mode) *logrus.Entry {
 
 func Init(dir string) {
 	shutdownManager.Register(CloseFileHandle)
-	rotator, err = NewRotator(dir, "maestro.log", 10 << 20, 0644)
+	rotator, err = NewRotator(dir, "maestro.log", 10<<20, 0644)
 	if err != nil {
 		panic("cannot create rotator: " + err.Error())
 	}
 }
 
-func CloseFileHandle() error {
-	return rotator.Close()
+func CloseFileHandle() {
+	_ = rotator.Close()
 }
