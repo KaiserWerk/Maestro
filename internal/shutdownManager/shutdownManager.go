@@ -1,17 +1,29 @@
 package shutdownManager
 
-import "sync"
+import (
+	"os"
+	"sync"
+)
 
 var (
 	mut   sync.Mutex
-	funcs = make([]func(), 0, 5)
+	funcs = make([]func(*sync.WaitGroup), 0, 5)
 )
 
 func Initiate() {
-	// TODO
+	mut.Lock()
+	defer mut.Unlock()
+
+	wg := &sync.WaitGroup{}
+	wg.Add(len(funcs))
+	for _, f := range funcs {
+		go f(wg)
+	}
+	wg.Wait()
+	os.Exit(0)
 }
 
-func Register(f func()) {
+func Register(f func(wg *sync.WaitGroup)) {
 	mut.Lock()
 	funcs = append(funcs, f)
 	mut.Unlock()

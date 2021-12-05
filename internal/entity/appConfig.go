@@ -7,8 +7,4 @@ type AppConfig struct {
 		CertificateFile string `yaml:"certificate_file"`
 		KeyFile         string `yaml:"key_file"`
 	} `yaml:"app"`
-	Database struct {
-		Driver string `yaml:"driver"`
-		DSN    string `yaml:"dsn"`
-	} `yaml:"database"`
 }

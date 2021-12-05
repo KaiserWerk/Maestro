@@ -1,9 +1,11 @@
 package panicHandler
 
-import "fmt"
+import (
+	"github.com/sirupsen/logrus"
+)
 
-func HandlePanic() {
+func HandlePanic(l *logrus.Entry) {
 	if r := recover(); r != nil {
-		fmt.Printf("recovered panic: %v\n", r)
+		l.Panicf("recovered panic: %v\n", r)
 	}
 }

@@ -3,6 +3,7 @@ package logging
 import (
 	"io"
 	"os"
+	"sync"
 
 	"github.com/KaiserWerk/Maestro/internal/shutdownManager"
 
@@ -49,6 +50,7 @@ func Init(dir string) {
 	}
 }
 
-func CloseFileHandle() {
+func CloseFileHandle(wg *sync.WaitGroup) {
 	_ = rotator.Close()
+	wg.Done()
 }

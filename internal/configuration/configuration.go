@@ -13,7 +13,7 @@ import (
 
 var (
 	configFile = "app.yaml"
-	appConfig *entity.AppConfig
+	appConfig  *entity.AppConfig
 )
 
 func SetFile(file string) {
@@ -22,7 +22,7 @@ func SetFile(file string) {
 
 func Setup() (*entity.AppConfig, bool, error) {
 	var created bool
-	if _, err := os.Stat(configFile); os.IsNotExist(err)  {
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		content, err := assets.ReadConfigurationFile("app.dist.yaml")
 		if err != nil {
 			return nil, created, err
@@ -46,25 +46,17 @@ func Setup() (*entity.AppConfig, bool, error) {
 		panic("could not unmarshal configuration: " + err.Error())
 	}
 
-	if created {
-		if e := os.Getenv(global.EnvBindAddress); e != "" {
-			conf.App.BindAddress = e
-		}
-		if e := os.Getenv(global.EnvAuthToken); e != "" {
-			conf.App.AuthToken = e
-		}
-		if e := os.Getenv(global.EnvCertFile); e != "" {
-			conf.App.CertificateFile = e
-		}
-		if e := os.Getenv(global.EnvKeyFile); e != "" {
-			conf.App.KeyFile = e
-		}
-		if e := os.Getenv(global.EnvDatabaseDriver); e != "" {
-			conf.Database.Driver = e
-		}
-		if e := os.Getenv(global.EnvDatabaseDSN); e != "" {
-			conf.Database.DSN = e
-		}
+	if e := os.Getenv(global.EnvBindAddress); e != "" {
+		conf.App.BindAddress = e
+	}
+	if e := os.Getenv(global.EnvAuthToken); e != "" {
+		conf.App.AuthToken = e
+	}
+	if e := os.Getenv(global.EnvCertFile); e != "" {
+		conf.App.CertificateFile = e
+	}
+	if e := os.Getenv(global.EnvKeyFile); e != "" {
+		conf.App.KeyFile = e
 	}
 
 	appConfig = &conf

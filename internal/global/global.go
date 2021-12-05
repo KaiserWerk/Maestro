@@ -10,17 +10,15 @@ const (
 	DefaultPort = "9200"
 	AuthHeader  = "X-Registry-Token"
 
-	envPrefix         = "MAESTRO_"
-	EnvAuthToken      = envPrefix + "TOKEN"
-	EnvBindAddress    = envPrefix + "BIND_ADDRESS"
-	EnvCertFile       = envPrefix + "CERTIFICATE_FILE"
-	EnvKeyFile        = envPrefix + "KEY_FILE"
-	EnvDatabaseDriver = envPrefix + "DATABASE_DRIVER"
-	EnvDatabaseDSN    = envPrefix + "DATABASE_DSN"
+	envPrefix      = "MAESTRO_"
+	EnvAuthToken   = envPrefix + "TOKEN"
+	EnvBindAddress = envPrefix + "BIND_ADDRESS"
+	EnvCertFile    = envPrefix + "CERTIFICATE_FILE"
+	EnvKeyFile     = envPrefix + "KEY_FILE"
 )
 
 var (
-	testPort  uint32 = 30000
+	testPort uint32 = 30000
 )
 
 func GenerateToken(length int) string {

@@ -3,6 +3,3 @@ app:
   auth_token: 123abc
   certificate_file:
   key_file:
-database:
-  driver: mysql
-  dsn: 'root:root@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=true'
