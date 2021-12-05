@@ -58,7 +58,6 @@ with the request body
 registers an app with the given ID under the specified address which is then queryable
 by other parties.
 
-
 #### Deregistration
 
 ``DELETE /deregister?id=some-service-id``
