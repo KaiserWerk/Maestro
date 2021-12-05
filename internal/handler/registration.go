@@ -24,7 +24,7 @@ func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request
 		if errors.Is(err, &cache.EntryExists{}) {
 			http.Error(w, "unable to register address; ID already exists", http.StatusConflict)
 		} else {
-			http.Error(w, "unable to register address: " + err.Error(), http.StatusInternalServerError)
+			http.Error(w, "unable to register address: "+err.Error(), http.StatusInternalServerError)
 		}
 		return
 	}
@@ -32,14 +32,13 @@ func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request
 
 func (h *HttpHandler) DeregistrationHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	var reg entity.Registrant
-	err := json.NewDecoder(r.Body).Decode(&reg)
-	if err != nil {
-		http.Error(w, "unable to unmarshal JSON body", http.StatusBadRequest)
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "missing or empty id query parameter", http.StatusBadRequest)
 		return
 	}
 
-	if ok := cache.Deregister(reg.Id); !ok {
+	if ok := cache.Deregister(id); !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
