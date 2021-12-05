@@ -13,7 +13,7 @@ const (
 	envPrefix      = "MAESTRO_"
 	EnvAuthToken   = envPrefix + "TOKEN"
 	EnvBindAddress = envPrefix + "BIND_ADDRESS"
-	EnvCertFile    = envPrefix + "CERTIFICATE_FILE"
+	EnvCertFile    = envPrefix + "CERT_FILE"
 	EnvKeyFile     = envPrefix + "KEY_FILE"
 )
 
