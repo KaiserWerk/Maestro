@@ -85,4 +85,4 @@ The response body looks like this:
 
 ``PUT /ping?id=some-service-id``
 
-signals that an app with sends out the ping is still alive and working.
+signals that an app which sends out the ping is still alive and working.
