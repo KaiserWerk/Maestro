@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
+	"github.com/KaiserWerk/Maestro/internal/cache"
 	"net/http"
 	"net/url"
 	"os"
@@ -49,6 +51,7 @@ func main() {
 		logger.Info("configuration file was created; exiting")
 		return
 	}
+	cache.Init(conf)
 
 	u, err := url.ParseRequestURI(conf.App.BindAddress)
 	if err != nil {
@@ -86,6 +89,9 @@ func main() {
 			logger.Panic("Could not start server: " + err.Error())
 		}
 	} else if u.Scheme == "https" {
+		s.TLSConfig = &tls.Config{
+			MinVersion: tls.VersionTLS13,
+		}
 		if err := s.ListenAndServeTLS(conf.App.CertificateFile, conf.App.KeyFile); err != nil && err != http.ErrServerClosed {
 			logger.Panic("Could not start server with TLS: " + err.Error())
 		}

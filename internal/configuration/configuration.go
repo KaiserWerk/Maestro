@@ -60,7 +60,7 @@ func Setup() (*entity.AppConfig, bool, error) {
 		} else if i > 255 {
 			i = 255
 		}
-		conf.App.DieAfter = uint8(i)
+		conf.App.DieAfter = i
 	}
 	if e := os.Getenv(global.EnvCertFile); e != "" {
 		conf.App.CertificateFile = e

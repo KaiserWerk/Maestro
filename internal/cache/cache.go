@@ -11,14 +11,19 @@ import (
 )
 
 type EntryExists struct{}
+
 func (ee *EntryExists) Error() string {
 	return "entry already exists"
 }
 
 var (
-	mut sync.Mutex
-	entries = cache.New(5 * time.Minute, time.Minute)
+	mut     sync.Mutex
+	entries *cache.Cache
 )
+
+func Init(cfg *entity.AppConfig) {
+	entries = cache.New(time.Duration(cfg.App.DieAfter)*time.Minute, time.Minute)
+}
 
 func Register(id, address string) error {
 	_, ok := entries.Get(id)
