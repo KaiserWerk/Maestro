@@ -16,6 +16,7 @@ It just needs and open TPC port to be reachable.
 app:
   bind_address: 'http://localhost:9200'
   auth_token: 123abc
+  die_after: 5 # in minutes
   certificate_file:
   key_file:
 ```
@@ -33,6 +34,7 @@ Available environment variables are
 
 * MAESTRO_BIND_ADDRESS
 * MAESTRO_TOKEN
+* MAESTRO_DIE_AFTER
 * MAESTRO_CERT_FILE
 * MAESTRO_KEY_FILE
 

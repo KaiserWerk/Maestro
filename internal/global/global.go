@@ -11,8 +11,9 @@ const (
 	AuthHeader  = "X-Registry-Token"
 
 	envPrefix      = "MAESTRO_"
-	EnvAuthToken   = envPrefix + "TOKEN"
 	EnvBindAddress = envPrefix + "BIND_ADDRESS"
+	EnvAuthToken   = envPrefix + "TOKEN"
+	EnvDieAfter    = envPrefix + "DIE_AFTER"
 	EnvCertFile    = envPrefix + "CERT_FILE"
 	EnvKeyFile     = envPrefix + "KEY_FILE"
 )

@@ -1,5 +1,6 @@
 app:
   bind_address: 'http://localhost:9200'
   auth_token: 123abc
+  die_after: 5 # in minutes, between 1 and 255
   certificate_file:
   key_file:

@@ -4,6 +4,7 @@ import (
 	"github.com/KaiserWerk/Maestro/internal/global"
 	"io/ioutil"
 	"os"
+	"strconv"
 
 	"github.com/KaiserWerk/Maestro/internal/assets"
 	"github.com/KaiserWerk/Maestro/internal/entity"
@@ -51,6 +52,15 @@ func Setup() (*entity.AppConfig, bool, error) {
 	}
 	if e := os.Getenv(global.EnvAuthToken); e != "" {
 		conf.App.AuthToken = e
+	}
+	if e := os.Getenv(global.EnvDieAfter); e != "" {
+		i, _ := strconv.Atoi(e)
+		if i < 1 {
+			i = 1
+		} else if i > 255 {
+			i = 255
+		}
+		conf.App.DieAfter = uint8(i)
 	}
 	if e := os.Getenv(global.EnvCertFile); e != "" {
 		conf.App.CertificateFile = e
