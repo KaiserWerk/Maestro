@@ -42,7 +42,7 @@ Available environment variables are
 
 The API route prefix for version 1 is ``/api/v1``.
 
-There is also a [Go SDK](https://github.com/KaiserWerk/Maestro-Go-SDK) available.
+You can also use the [Maestro Go SDK](https://github.com/KaiserWerk/Maestro-Go-SDK).
 
 #### Registration
 
