@@ -75,7 +75,7 @@ The response body looks like this:
 
 ```json
 {
-    "id": "some-service-handle",
+    "id": "some-service-id",
     "address": "http://localhost:9001",
     "last_ping": "2021-12-05T23:54:07.844640791+01:00"
 }
@@ -85,4 +85,4 @@ The response body looks like this:
 
 ``PUT /ping?id=some-service-id``
 
-signals that an app which sends out the ping is still alive and working.
+signals that the app which sends out the ping is still alive and working.
