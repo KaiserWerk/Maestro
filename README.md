@@ -7,8 +7,8 @@ A slim app to cover your service discovery needs.
 * If an app does not send a ping within a configurable interval, it is considered dead
 and removed from the registry
 
-Maestro comes as a single binary for the popular operating system and has no dependencies
-It just needs and open TCP port to be reachable.
+Maestro comes as a single binary for the popular operating system and has no dependencies.
+It just needs an open TCP port to be reachable.
 
 ## Configuration
 
