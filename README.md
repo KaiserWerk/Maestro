@@ -8,7 +8,7 @@ A slim app to cover your service discovery needs.
 and removed from the registry
 
 Maestro comes as a single binary for the popular operating system and has no dependencies
-It just needs and open TPC port to be reachable.
+It just needs and open TCP port to be reachable.
 
 ## Configuration
 
