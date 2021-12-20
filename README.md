@@ -44,6 +44,8 @@ The API route prefix is ``/api/v1``.
 
 You can also use the [Maestro Go SDK](https://github.com/KaiserWerk/Maestro-Go-SDK).
 
+Use the custom ``X-Registry-Token`` header to supply the authentication token.
+
 #### Registration
 
 ``POST /register``
