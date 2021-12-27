@@ -13,12 +13,11 @@ It just needs an open TCP port to be reachable.
 ## Configuration
 
 ```yaml
-app:
-  bind_address: 'http://localhost:9200'
-  auth_token: 123abc
-  die_after: 5 # in minutes
-  certificate_file:
-  key_file:
+bind_address: 'http://localhost:9200'
+auth_token: 123abc
+die_after: 5 # in minutes
+certificate_file:
+key_file:
 ```
 
 The bind address specifies which host, if any, and which port Maestro binds to.
@@ -33,9 +32,9 @@ precedence than configuration file values, if they are set.
 Available environment variables are
 
 * MAESTRO_BIND_ADDRESS
-* MAESTRO_TOKEN
+* MAESTRO_AUTH_TOKEN
 * MAESTRO_DIE_AFTER
-* MAESTRO_CERT_FILE
+* MAESTRO_CERTIFICATE_FILE
 * MAESTRO_KEY_FILE
 
 ## API
