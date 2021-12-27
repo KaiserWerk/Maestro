@@ -41,7 +41,7 @@ Available environment variables are
 
 The API route prefix is ``/api/v1``.
 
-You can also use the [Maestro Go SDK](https://github.com/KaiserWerk/Maestro-Go-SDK).
+You can also use the [Maestro Go SDK](https://github.com/KaiserWerk/Maestro-Go-SDK) and the [Maestro .NET SDK](https://github.com/KaiserWerk/Maestro-DotNet-SDK).
 
 Use the custom ``X-Registry-Token`` header to supply the authentication token.
 
