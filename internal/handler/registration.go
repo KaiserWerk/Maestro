@@ -3,8 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"github.com/KaiserWerk/Maestro/internal/cache"
 	"net/http"
+
+	"github.com/KaiserWerk/Maestro/internal/cache"
 
 	"github.com/KaiserWerk/Maestro/internal/entity"
 )
@@ -19,7 +20,7 @@ func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = cache.Register(reg.Id, reg.Address)
+	err = h.MaestroCache.Register(reg.Id, reg.Address)
 	if err != nil {
 		if errors.Is(err, &cache.EntryExists{}) {
 			http.Error(w, "unable to register address; ID already exists", http.StatusConflict)
@@ -38,7 +39,7 @@ func (h *HttpHandler) DeregistrationHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if ok := cache.Deregister(id); !ok {
+	if ok := h.MaestroCache.Deregister(id); !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

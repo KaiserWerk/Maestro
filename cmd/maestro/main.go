@@ -13,6 +13,7 @@ import (
 
 	"github.com/KaiserWerk/Maestro/internal/cache"
 	"github.com/KaiserWerk/Maestro/internal/configuration"
+	"github.com/KaiserWerk/Maestro/internal/entity"
 	"github.com/KaiserWerk/Maestro/internal/global"
 	"github.com/KaiserWerk/Maestro/internal/handler"
 	"github.com/KaiserWerk/Maestro/internal/logging"
@@ -51,9 +52,7 @@ func main() {
 		logger.Info("configuration file was created; exiting")
 		return
 	}
-	cache.Init(conf)
-
-	u, err := url.ParseRequestURI(conf.App.BindAddress)
+	u, err := url.ParseRequestURI(conf.BindAddress)
 	if err != nil {
 		logger.WithField("error", err.Error()).Panic("invalid bind address")
 	}
@@ -61,7 +60,7 @@ func main() {
 	setupBindAddr(u, &bindAddr)
 	s := &http.Server{
 		Addr:           bindAddr,
-		Handler:        getRouter(),
+		Handler:        getRouter(conf),
 		ReadTimeout:    time.Second,
 		WriteTimeout:   2 * time.Second,
 		MaxHeaderBytes: 3 << 10,
@@ -92,7 +91,7 @@ func main() {
 		s.TLSConfig = &tls.Config{
 			MinVersion: tls.VersionTLS13,
 		}
-		if err := s.ListenAndServeTLS(conf.App.CertificateFile, conf.App.KeyFile); err != nil && err != http.ErrServerClosed {
+		if err := s.ListenAndServeTLS(conf.CertificateFile, conf.KeyFile); err != nil && err != http.ErrServerClosed {
 			logger.Panic("Could not start server with TLS: " + err.Error())
 		}
 	}
@@ -108,7 +107,7 @@ func setupBindAddr(u *url.URL, addr *string) {
 	}
 }
 
-func getRouter() *mux.Router {
+func getRouter(appConfig *entity.AppConfig) *mux.Router {
 	router := mux.NewRouter()
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "This resource could not be found", http.StatusNotFound)
@@ -118,7 +117,8 @@ func getRouter() *mux.Router {
 	})
 
 	hd := &handler.HttpHandler{
-		Logger: logging.New(logrus.InfoLevel, "main", logging.ModeBoth),
+		Logger:       logging.New(logrus.InfoLevel, "main", logging.ModeBoth),
+		MaestroCache: cache.New(appConfig),
 	}
 
 	routerV1 := router.PathPrefix("/api/v1").Subrouter()

@@ -2,8 +2,6 @@ package handler
 
 import (
 	"net/http"
-
-	"github.com/KaiserWerk/Maestro/internal/cache"
 )
 
 func (h *HttpHandler) PingHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +12,7 @@ func (h *HttpHandler) PingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := cache.Update(id)
+	err := h.MaestroCache.Update(id)
 	if err != nil {
 		http.Error(w, "could not update entry", http.StatusInternalServerError)
 		return

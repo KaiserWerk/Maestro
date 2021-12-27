@@ -3,8 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/KaiserWerk/Maestro/internal/cache"
 )
 
 func (h *HttpHandler) QueryHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +13,7 @@ func (h *HttpHandler) QueryHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "id query parameter missing or empty", http.StatusNotFound)
 		return
 	}
-	e, ok := cache.Get(id)
+	e, ok := h.MaestroCache.Get(id)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return

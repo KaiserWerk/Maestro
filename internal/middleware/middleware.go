@@ -14,7 +14,7 @@ func Auth(f func(w http.ResponseWriter, r *http.Request)) func(http.ResponseWrit
 			http.Error(w, "Missing auth token", http.StatusUnauthorized)
 			return
 		}
-		if conf := configuration.GetConfiguration(); authToken != conf.App.AuthToken {
+		if conf := configuration.GetConfiguration(); authToken != conf.AuthToken {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}

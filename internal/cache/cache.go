@@ -2,7 +2,6 @@ package cache
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/KaiserWerk/Maestro/internal/entity"
@@ -10,28 +9,37 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
+// EntryExists error
 type EntryExists struct{}
 
 func (ee *EntryExists) Error() string {
 	return "entry already exists"
 }
 
-var (
-	mut     sync.Mutex
-	entries *cache.Cache
-)
-
-func Init(cfg *entity.AppConfig) {
-	entries = cache.New(time.Duration(cfg.App.DieAfter)*time.Minute, time.Minute)
+type Cacher interface {
+	Register(string, string) error
+	Deregister(string) bool
+	Get(string) (*entity.Registrant, bool)
+	Update(string) error
 }
 
-func Register(id, address string) error {
-	_, ok := entries.Get(id)
+type MaestroCache struct {
+	entries *cache.Cache
+}
+
+var _ Cacher = &MaestroCache{}
+
+func New(cfg *entity.AppConfig) *MaestroCache {
+	return &MaestroCache{entries: cache.New(time.Duration(cfg.DieAfter)*time.Minute, time.Minute)}
+}
+
+func (mc *MaestroCache) Register(id, address string) error {
+	_, ok := mc.entries.Get(id)
 	if ok {
 		return &EntryExists{}
 	}
 
-	entries.Set(id, &entity.Registrant{
+	mc.entries.Set(id, &entity.Registrant{
 		Id:       id,
 		Address:  address,
 		LastPing: time.Now(),
@@ -39,23 +47,23 @@ func Register(id, address string) error {
 	return nil
 }
 
-func Deregister(id string) bool {
-	if _, ok := entries.Get(id); ok {
-		entries.Delete(id)
+func (mc *MaestroCache) Deregister(id string) bool {
+	if _, ok := mc.entries.Get(id); ok {
+		mc.entries.Delete(id)
 		return true
 	}
 	return false
 }
 
-func Get(id string) (*entity.Registrant, bool) {
-	if e, ok := entries.Get(id); ok {
+func (mc *MaestroCache) Get(id string) (*entity.Registrant, bool) {
+	if e, ok := mc.entries.Get(id); ok {
 		return e.(*entity.Registrant), true
 	}
 	return nil, false
 }
 
-func Update(id string) error {
-	e, ok := entries.Get(id)
+func (mc *MaestroCache) Update(id string) error {
+	e, ok := mc.entries.Get(id)
 	if !ok {
 		return fmt.Errorf("entry with id '%s' does not exist", id)
 	}
@@ -63,46 +71,6 @@ func Update(id string) error {
 	reg := e.(*entity.Registrant)
 	reg.LastPing = time.Now()
 
-	entries.Set(id, reg, cache.DefaultExpiration)
+	mc.entries.Set(id, reg, cache.DefaultExpiration)
 	return nil
 }
-
-/*
-func Register(id, address string) error {
-	mut.Lock()
-	defer mut.Unlock()
-	_, ok := entries[id]
-	if ok {
-		return &EntryExists{}
-	}
-	entries[id] = entity.Registrant{
-		Id:       id,
-		Address:  address,
-		LastPing: time.Now(),
-	}
-	return nil
-}
-
-func Deregister(id string) {
-	mut.Lock()
-	defer mut.Unlock()
-	delete(entries, id)
-}
-
-func Get(id string) (entity.Registrant, bool) {
-	mut.Lock()
-	defer mut.Unlock()
-	reg, ok := entries[id]
-	return reg, ok
-}
-
-func GetAll() []entity.Registrant {
-	mut.Lock()
-	defer mut.Unlock()
-	s := make([]entity.Registrant, 0)
-	for _, v := range entries {
-		s = append(s, v)
-	}
-	return s
-}
-*/
