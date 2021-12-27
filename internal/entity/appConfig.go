@@ -1,11 +1,9 @@
 package entity
 
 type AppConfig struct {
-	App struct {
-		BindAddress     string `yaml:"bind_address"`
-		AuthToken       string `yaml:"auth_token"`
-		DieAfter        int    `yaml:"die_after"`
-		CertificateFile string `yaml:"certificate_file"`
-		KeyFile         string `yaml:"key_file"`
-	} `yaml:"app"`
+	BindAddress     string `yaml:"bind_address" envconfig:"BIND_ADDRESS"`
+	AuthToken       string `yaml:"auth_token" envconfig:"AUTH_TOKEN"`
+	DieAfter        uint   `yaml:"die_after" envconfig:"DIE_AFTER"`
+	CertificateFile string `yaml:"certificate_file" envconfig:"CERTIFICATE_FILE"`
+	KeyFile         string `yaml:"key_file" envconfig:"KEY_FILE"`
 }

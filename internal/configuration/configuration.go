@@ -1,14 +1,13 @@
 package configuration
 
 import (
-	"github.com/KaiserWerk/Maestro/internal/global"
 	"io/ioutil"
 	"os"
-	"strconv"
 
 	"github.com/KaiserWerk/Maestro/internal/assets"
 	"github.com/KaiserWerk/Maestro/internal/entity"
 
+	"github.com/kelseyhightower/envconfig"
 	"gopkg.in/yaml.v2"
 )
 
@@ -47,26 +46,8 @@ func Setup() (*entity.AppConfig, bool, error) {
 		panic("could not unmarshal configuration: " + err.Error())
 	}
 
-	if e := os.Getenv(global.EnvBindAddress); e != "" {
-		conf.App.BindAddress = e
-	}
-	if e := os.Getenv(global.EnvAuthToken); e != "" {
-		conf.App.AuthToken = e
-	}
-	if e := os.Getenv(global.EnvDieAfter); e != "" {
-		i, _ := strconv.Atoi(e)
-		if i < 1 {
-			i = 1
-		} else if i > 255 {
-			i = 255
-		}
-		conf.App.DieAfter = i
-	}
-	if e := os.Getenv(global.EnvCertFile); e != "" {
-		conf.App.CertificateFile = e
-	}
-	if e := os.Getenv(global.EnvKeyFile); e != "" {
-		conf.App.KeyFile = e
+	if err := envconfig.Process("maestro", &conf); err != nil {
+		panic("could not process env vars: " + err.Error())
 	}
 
 	appConfig = &conf
