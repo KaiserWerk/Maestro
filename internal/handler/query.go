@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (h *HttpHandler) QueryHandler(w http.ResponseWriter, r *http.Request) {
+func (h *BaseHandler) QueryHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	defer r.Body.Close()
 	id := r.URL.Query().Get("id")

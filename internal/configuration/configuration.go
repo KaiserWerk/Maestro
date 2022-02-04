@@ -1,34 +1,34 @@
 package configuration
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
-
-	"github.com/KaiserWerk/Maestro/internal/assets"
-	"github.com/KaiserWerk/Maestro/internal/entity"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 	"gopkg.in/yaml.v2"
+
+	"github.com/KaiserWerk/Maestro/internal/assets"
 )
 
-var (
-	configFile = "app.yaml"
-	appConfig  *entity.AppConfig
-)
-
-func SetFile(file string) {
-	configFile = file
+type AppConfig struct {
+	BindAddress     string        `yaml:"bind_address" envconfig:"BIND_ADDRESS"`
+	AuthToken       string        `yaml:"auth_token" envconfig:"AUTH_TOKEN"`
+	DieAfter        time.Duration `yaml:"die_after" envconfig:"DIE_AFTER"`
+	CertificateFile string        `yaml:"certificate_file" envconfig:"CERTIFICATE_FILE"`
+	KeyFile         string        `yaml:"key_file" envconfig:"KEY_FILE"`
 }
 
-func Setup() (*entity.AppConfig, bool, error) {
+func Setup(file string) (*AppConfig, bool, error) {
 	var created bool
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+	if _, err := os.Stat(file); os.IsNotExist(err) {
 		content, err := assets.ReadConfigurationFile("app.dist.yaml")
 		if err != nil {
 			return nil, created, err
 		}
 
-		err = ioutil.WriteFile(configFile, content, 0744)
+		err = ioutil.WriteFile(file, content, 0744)
 		if err != nil {
 			return nil, created, err
 		}
@@ -36,25 +36,19 @@ func Setup() (*entity.AppConfig, bool, error) {
 		created = true
 	}
 
-	content, err := ioutil.ReadFile(configFile)
+	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		panic("could not read configuration file: " + err.Error())
+		return nil, created, fmt.Errorf("could not read configuration file: " + err.Error())
 	}
 
-	var conf entity.AppConfig
+	var conf AppConfig
 	if err := yaml.Unmarshal(content, &conf); err != nil {
-		panic("could not unmarshal configuration: " + err.Error())
+		return nil, created, fmt.Errorf("could not unmarshal configuration: " + err.Error())
 	}
 
 	if err := envconfig.Process("maestro", &conf); err != nil {
-		panic("could not process env vars: " + err.Error())
+		return nil, created, fmt.Errorf("could not process env vars: " + err.Error())
 	}
 
-	appConfig = &conf
-
-	return appConfig, created, nil
-}
-
-func GetConfiguration() *entity.AppConfig {
-	return appConfig
+	return &conf, created, nil
 }

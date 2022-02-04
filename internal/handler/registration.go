@@ -10,7 +10,7 @@ import (
 	"github.com/KaiserWerk/Maestro/internal/entity"
 )
 
-func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
+func (h *BaseHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	defer r.Body.Close()
 	var reg entity.Registrant
@@ -31,7 +31,7 @@ func (h *HttpHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (h *HttpHandler) DeregistrationHandler(w http.ResponseWriter, r *http.Request) {
+func (h *BaseHandler) DeregistrationHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	id := r.URL.Query().Get("id")
 	if id == "" {

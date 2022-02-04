@@ -13,44 +13,44 @@ import (
 
 	"github.com/KaiserWerk/Maestro/internal/cache"
 	"github.com/KaiserWerk/Maestro/internal/configuration"
-	"github.com/KaiserWerk/Maestro/internal/entity"
 	"github.com/KaiserWerk/Maestro/internal/global"
 	"github.com/KaiserWerk/Maestro/internal/handler"
 	"github.com/KaiserWerk/Maestro/internal/logging"
 	"github.com/KaiserWerk/Maestro/internal/middleware"
 	"github.com/KaiserWerk/Maestro/internal/panicHandler"
-	"github.com/KaiserWerk/Maestro/internal/shutdownManager"
-
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
 var (
 	bindAddr   string
-	configFile = flag.String("config", "", "The configuration file to use")
-	logDir     = flag.String("logDir", ".", "The directory to save log files to")
+	configFile = flag.String("config", "app.yaml", "The configuration file to use")
+	logDir     = flag.String("logdir", ".", "The directory to save log files to")
 )
 
 func main() {
 	flag.Parse()
 
-	logging.Init(*logDir)
-
-	logger := logging.New(logrus.InfoLevel, "main", logging.ModeBoth)
-	defer shutdownManager.Initiate()
-	defer panicHandler.HandlePanic(logger)
-
-	if *configFile != "" {
-		configuration.SetFile(*configFile)
+	if *configFile == "" {
+		fmt.Println("The configuration file parameter is empty, please supply a valid value.")
+		return
 	}
 
-	conf, created, err := configuration.Setup()
+	logger, cleanup, err := logging.New(*logDir, "main", logrus.InfoLevel, logging.ModeBoth)
 	if err != nil {
-		logger.WithField("error", err.Error()).Panic("error setting up configuration")
+		fmt.Println("could not instantiate logger:", err.Error())
+		return
+	}
+	defer cleanup()
+	defer panicHandler.HandlePanic(logger)
+
+	conf, created, err := configuration.Setup(*configFile)
+	if err != nil {
+		fmt.Println("error setting up configuration:", err.Error())
+		return
 	}
 	if created {
 		logger.Info("configuration file was created; exiting")
-		return
 	}
 	u, err := url.ParseRequestURI(conf.BindAddress)
 	if err != nil {
@@ -60,7 +60,7 @@ func main() {
 	setupBindAddr(u, &bindAddr)
 	s := &http.Server{
 		Addr:           bindAddr,
-		Handler:        getRouter(conf),
+		Handler:        getRouter(conf, logger),
 		ReadTimeout:    time.Second,
 		WriteTimeout:   2 * time.Second,
 		MaxHeaderBytes: 3 << 10,
@@ -107,7 +107,7 @@ func setupBindAddr(u *url.URL, addr *string) {
 	}
 }
 
-func getRouter(appConfig *entity.AppConfig) *mux.Router {
+func getRouter(appConfig *configuration.AppConfig, logger *logrus.Entry) *mux.Router {
 	router := mux.NewRouter()
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "This resource could not be found", http.StatusNotFound)
@@ -116,17 +116,22 @@ func getRouter(appConfig *entity.AppConfig) *mux.Router {
 		http.Error(w, "This is the Maestro start page.", http.StatusNoContent)
 	})
 
-	hd := &handler.HttpHandler{
-		Logger:       logging.New(logrus.InfoLevel, "main", logging.ModeBoth),
+	bh := &handler.BaseHandler{
+		Config:       appConfig,
+		Logger:       logger,
 		MaestroCache: cache.New(appConfig),
 	}
 
-	routerV1 := router.PathPrefix("/api/v1").Subrouter()
+	mwh := middleware.MWHandler{
+		Config: appConfig,
+		Logger: logger,
+	}
 
-	routerV1.HandleFunc("/register", middleware.Auth(hd.RegistrationHandler)).Methods(http.MethodPost)
-	routerV1.HandleFunc("/deregister", middleware.Auth(hd.DeregistrationHandler)).Methods(http.MethodDelete)
-	routerV1.HandleFunc("/ping", middleware.Auth(hd.PingHandler)).Methods(http.MethodPut)
-	routerV1.HandleFunc("/query", middleware.Auth(hd.QueryHandler)).Methods(http.MethodGet)
+	routerV1 := router.PathPrefix("/api/v1").Subrouter()
+	routerV1.HandleFunc("/register", mwh.Auth(bh.RegistrationHandler)).Methods(http.MethodPost)
+	routerV1.HandleFunc("/deregister", mwh.Auth(bh.DeregistrationHandler)).Methods(http.MethodDelete)
+	routerV1.HandleFunc("/ping", mwh.Auth(bh.PingHandler)).Methods(http.MethodPut)
+	routerV1.HandleFunc("/query", mwh.Auth(bh.QueryHandler)).Methods(http.MethodGet)
 
 	return router
 }

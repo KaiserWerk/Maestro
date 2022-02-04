@@ -2,6 +2,7 @@ package cache
 
 import (
 	"fmt"
+	"github.com/KaiserWerk/Maestro/internal/configuration"
 	"time"
 
 	"github.com/KaiserWerk/Maestro/internal/entity"
@@ -29,8 +30,8 @@ type MaestroCache struct {
 
 var _ Cacher = &MaestroCache{}
 
-func New(cfg *entity.AppConfig) *MaestroCache {
-	return &MaestroCache{entries: cache.New(time.Duration(cfg.DieAfter)*time.Minute, time.Minute)}
+func New(cfg *configuration.AppConfig) *MaestroCache {
+	return &MaestroCache{entries: cache.New(cfg.DieAfter, time.Minute)}
 }
 
 func (mc *MaestroCache) Register(id, address string) error {

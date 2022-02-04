@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (h *HttpHandler) PingHandler(w http.ResponseWriter, r *http.Request) {
+func (h *BaseHandler) PingHandler(w http.ResponseWriter, r *http.Request) {
 	_ = r.Body.Close()
 	id := r.URL.Query().Get("id")
 	if id == "" {

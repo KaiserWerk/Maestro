@@ -1,13 +1,11 @@
 package logging
 
 import (
-	"io"
-	"os"
-	"sync"
-
-	"github.com/KaiserWerk/Maestro/internal/shutdownManager"
-
+	"fmt"
 	"github.com/sirupsen/logrus"
+	"io"
+	"io/fs"
+	"os"
 )
 
 type Mode uint8
@@ -18,13 +16,17 @@ const (
 	ModeBoth
 )
 
-var (
-	err     error
-	rotator *Rotator
+const (
+	logFile             = "maestro.log"
+	maxSize             = 10 << 20
+	perms   fs.FileMode = 0644
 )
 
-func New(lvl logrus.Level, context string, mode Mode) *logrus.Entry {
-	l := logrus.New()
+func New(dir, context string, lvl logrus.Level, mode Mode) (*logrus.Entry, func() error, error) {
+	var (
+		l  = logrus.New()
+		cf func() error
+	)
 	l.SetLevel(lvl)
 	l.SetFormatter(&MaestroFormatter{
 		LevelPadding:   7,
@@ -34,23 +36,24 @@ func New(lvl logrus.Level, context string, mode Mode) *logrus.Entry {
 	if mode == ModeConsole {
 		l.SetOutput(os.Stdout)
 	} else if mode == ModeFile {
+		rotator, err := NewRotator(dir, logFile, maxSize, perms)
+		if err != nil {
+			return nil, nil, fmt.Errorf("cannot create rotator: " + err.Error())
+		}
+		cf = func() error {
+			return rotator.Close()
+		}
 		l.SetOutput(rotator)
 	} else if mode == ModeBoth {
+		rotator, err := NewRotator(dir, logFile, maxSize, perms)
+		if err != nil {
+			return nil, nil, fmt.Errorf("cannot create rotator: " + err.Error())
+		}
+		cf = func() error {
+			return rotator.Close()
+		}
 		l.SetOutput(io.MultiWriter(rotator, os.Stdout))
 	}
 
-	return l.WithField("context", context)
-}
-
-func Init(dir string) {
-	shutdownManager.Register(CloseFileHandle)
-	rotator, err = NewRotator(dir, "maestro.log", 10<<20, 0644)
-	if err != nil {
-		panic("cannot create rotator: " + err.Error())
-	}
-}
-
-func CloseFileHandle(wg *sync.WaitGroup) {
-	_ = rotator.Close()
-	wg.Done()
+	return l.WithField("context", context), cf, nil
 }
