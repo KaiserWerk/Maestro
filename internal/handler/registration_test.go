@@ -19,11 +19,11 @@ import (
 
 func TestHttpHandler_RegistrationHandler_Success(t *testing.T) {
 	reg := entity.Registrant{
-		Id: "test-service",
+		Id:      "test-service",
 		Address: "http://some-addr.com",
 	}
 	b, _ := json.Marshal(reg)
-	handler := HttpHandler{}
+	handler := BaseHandler{}
 	req := httptest.NewRequest(http.MethodPost, "http://example.com/foo", bytes.NewBuffer(b))
 	req.Header.Add("X-Registry-Token", "123abc")
 	w := httptest.NewRecorder()
@@ -37,11 +37,11 @@ func TestHttpHandler_RegistrationHandler_Success(t *testing.T) {
 
 func TestHttpHandler_RegistrationHandler_Failure(t *testing.T) {
 	reg := entity.Registrant{
-		Id: "test-service",
+		Id:      "test-service",
 		Address: "http://some-addr.com",
 	}
 	b, _ := json.Marshal(reg)
-	handler := HttpHandler{}
+	handler := BaseHandler{}
 	w := httptest.NewRecorder()
 
 	req := httptest.NewRequest(http.MethodPost, "http://example.com/foo", bytes.NewBuffer(b))
@@ -57,7 +57,7 @@ func TestHttpHandler_RegistrationHandler_Failure(t *testing.T) {
 }
 
 func BenchmarkHttpHandler_RegistrationHandler(b *testing.B) {
-	handler := &HttpHandler{
+	handler := &BaseHandler{
 		Logger: nil, // TODO
 	}
 
@@ -66,9 +66,9 @@ func BenchmarkHttpHandler_RegistrationHandler(b *testing.B) {
 	router.HandleFunc("/", handler.RegistrationHandler)
 
 	srv := http.Server{
-		Handler: router,
-		Addr: fmt.Sprintf("localhost:%d", port),
-		ReadTimeout: 1 * time.Second,
+		Handler:      router,
+		Addr:         fmt.Sprintf("localhost:%d", port),
+		ReadTimeout:  1 * time.Second,
 		WriteTimeout: 2 * time.Second,
 	}
 
@@ -87,7 +87,7 @@ func BenchmarkHttpHandler_RegistrationHandler(b *testing.B) {
 	}
 
 	b.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {
 			b.Fatalf("cannot shut down HTTP server: %s", err.Error())
