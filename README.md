@@ -14,8 +14,8 @@ It just needs an open TCP port to be reachable.
 
 ```yaml
 bind_address: 'http://localhost:9200'
-auth_token: 123abc
-die_after: 5 # in minutes
+auth_token: 123abc # change this to something secure
+die_after: 5m # supply time units, e.g. 2h12m52s. default is 5 minutes
 certificate_file:
 key_file:
 ```
